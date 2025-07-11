@@ -1,0 +1,19 @@
+[package]
+name = "xmn"
+edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
+# license = ""           # e.g., "MIT", "GPL", "Apache 2.0"
+# authors = ["..."]      # e.g., ["Joe Smith (joesmith@noemail.com)", "John Snow (johnsnow@noemail.com)"]
+
+[dependencies.treasury]
+local = "../treasury"
+
+[dependencies.sui_extensions]
+local = "../sui_extensions"
+
+[addresses]
+xmn = "0x0"
+
+[dev-dependencies]
+
+[dev-addresses]
+
