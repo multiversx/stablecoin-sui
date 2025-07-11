@@ -18,7 +18,7 @@ module usdc::usdc {
     use std::ascii::string;
     use sui::coin;
     use sui::url;
-    use stablecoin::treasury;
+    use treasury::treasury;
     use sui_extensions::upgrade_service;
 
     /// The One-Time Witness struct for the USDC coin.
@@ -26,8 +26,8 @@ module usdc::usdc {
 
     // === Constants ===
 
-    const DESCRIPTION: vector<u8> = b"USDC is a US dollar-backed stablecoin issued by Circle. USDC is designed to provide a faster, safer, and more efficient way to send, spend, and exchange money around the world.";
-    const ICON_URL: vector<u8> = b"https://www.circle.com/hubfs/Brand/USDC/USDC_icon_32x32.png";
+    const DESCRIPTION: vector<u8> = b"My coin description";
+    const ICON_URL: vector<u8> = b"dummy description";
 
     #[allow(lint(share_owned))]
     /// Initializes
@@ -43,8 +43,8 @@ module usdc::usdc {
         let (treasury_cap, deny_cap, metadata) = coin::create_regulated_currency_v2(
             witness,
             6,               // decimals
-            b"USDC",         // symbol
-            b"USDC",         // name
+            b"XXC",         // symbol
+            b"XXC",         // name
             DESCRIPTION,
             option::some(url::new_unsafe(string(ICON_URL))),
             true,            // allow global pause

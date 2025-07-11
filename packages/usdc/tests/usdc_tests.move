@@ -24,7 +24,7 @@ module usdc::usdc_tests {
         deny_list::{Self, DenyList},
         url
     };
-    use stablecoin::treasury::Treasury;
+    use treasury::treasury::Treasury;
     use sui_extensions::upgrade_service::UpgradeService;
     use usdc::usdc::{Self, USDC};
 

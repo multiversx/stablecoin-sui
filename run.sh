@@ -54,7 +54,7 @@ function static_checks() {
 function test() {
   for path in $(_get_packages); do
     echo ">> Testing $path..."
-    if ! sui-debug move test --path "$path" --statistics --coverage; then
+    if ! sui move test --path "$path" --statistics --coverage; then
       exit 1
     fi
 

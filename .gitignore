@@ -4,3 +4,4 @@ build/
 .trace
 logs/
 *.log
+*_publish.json
