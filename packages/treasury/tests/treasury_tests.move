@@ -183,7 +183,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasurytreasurytreasury::treasury::ENotMasterMinter)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::ENotMasterMinter)]
     fun remove_controller__should_fail_if_not_sent_by_master_minter() {
         let mut scenario = setup();
 
@@ -209,7 +209,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasurytreasurytreasury::treasury::ENotController)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::ENotController)]
     fun configure_minter__should_fail_from_non_controller() {
         let mut scenario = setup();
 
@@ -219,7 +219,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasurytreasurytreasury::treasury::EPaused)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::EPaused)]
     fun configure_minter__should_fail_when_paused() {
         let mut scenario = setup();
 
@@ -248,7 +248,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasurytreasury::treasury::EPaused)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::EPaused)]
     fun increment_mint_allowance__should_fail_when_paused() {
         let mut scenario = setup();
 
@@ -261,7 +261,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasurytreasury::treasury::EZeroAmount)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::EZeroAmount)]
     fun increment_mint_allowance__should_fail_when_incrementing_by_zero() {
         let mut scenario = setup();
 
@@ -271,7 +271,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasurytreasury::treasury::ENotController)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::ENotController)]
     fun increment_mint_allowance__should_fail_from_non_controller() {
         let mut scenario = setup();
 
@@ -281,7 +281,7 @@ module treasury::treasury_tests {
         scenario.end();
     }
 
-    #[test, expected_failure(abort_code = ::treasurytreasury::treasury::EUnauthorizedMintCap)]
+    #[test, expected_failure(abort_code = ::treasury::treasury::EUnauthorizedMintCap)]
     fun increment_mint_allowance__should_fail_with_unauthorized_mint_cap() {
         let mut scenario = setup();
 
@@ -443,7 +443,7 @@ module treasury::treasury_tests {
 
         scenario.end();
     }
-treasury
+
     #[test, expected_failure(abort_code = ::treasury::treasury::EUnauthorizedMintCap)]
     fun burn__should_fail_from_deauthorized_mint_cap() {
         let mut scenario = setup();
