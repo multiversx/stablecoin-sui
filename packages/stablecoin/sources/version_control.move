@@ -14,25 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module stablecoin::version_control {
-    use sui::vec_set::VecSet;
+module stablecoin::version_control;
 
-    /// The current version of the package.
-    const VERSION: u64 = 1;
+use sui::vec_set::VecSet;
 
-    // === Errors ===
-    const EIncompatibleVersion: u64 = 0;
+/// The current version of the package.
+const VERSION: u64 = 1;
 
-    // === Methods ===
+// === Errors ===
+const EIncompatibleVersion: u64 = 0;
 
-    /// Gets the current package's version.
-    public fun current_version(): u64 {
-        VERSION
-    }
+// === Methods ===
 
-    /// [Package private] Asserts that an object's compatible version set is
-    /// compatible with the current package's version.
-    public(package) fun assert_object_version_is_compatible_with_package(compatible_versions: VecSet<u64>) {
-        assert!(compatible_versions.contains(&current_version()), EIncompatibleVersion);
-    }
+/// Gets the current package's version.
+public fun current_version(): u64 {
+    VERSION
+}
+
+/// [Package private] Asserts that an object's compatible version set is
+/// compatible with the current package's version.
+public(package) fun assert_object_version_is_compatible_with_package(
+    compatible_versions: VecSet<u64>,
+) {
+    assert!(compatible_versions.contains(&current_version()), EIncompatibleVersion);
 }

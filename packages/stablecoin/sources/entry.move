@@ -18,56 +18,68 @@
 /// wrapped objects from PTBs. Currently PTBs are unable to chain a reference from the output of one
 /// function to the input of another, making it difficult to call functions on wrapped objects.
 /// This module exposes those functions directly using entry functions.
-module stablecoin::entry {
-    use stablecoin::treasury::Treasury;
+module stablecoin::entry;
 
-    // === Entry Functions ===
+use stablecoin::treasury::Treasury;
 
-    /// Start owner role transfer process.
-    /// - Only callable by the owner.
-    /// - Only callable if the Treasury object is compatible with this package.
-    entry fun transfer_ownership<T>(treasury: &mut Treasury<T>, new_owner: address, ctx: &TxContext) {
-        treasury.assert_is_compatible();
-        treasury.roles_mut().owner_role_mut().begin_role_transfer(new_owner, ctx)
-    }
+// === Entry Functions ===
 
-    /// Finalize owner role transfer process.
-    /// - Only callable by the pending owner.
-    /// - Only callable if the Treasury object is compatible with this package.
-    entry fun accept_ownership<T>(treasury: &mut Treasury<T>, ctx: &TxContext) {
-        treasury.assert_is_compatible();
-        treasury.roles_mut().owner_role_mut().accept_role(ctx)
-    }
+/// Start owner role transfer process.
+/// - Only callable by the owner.
+/// - Only callable if the Treasury object is compatible with this package.
+entry fun transfer_ownership<T>(treasury: &mut Treasury<T>, new_owner: address, ctx: &TxContext) {
+    treasury.assert_is_compatible();
+    treasury.roles_mut().owner_role_mut().begin_role_transfer(new_owner, ctx)
+}
 
-    /// Change the master minter address.
-    /// - Only callable by the owner.
-    /// - Only callable if the Treasury object is compatible with this package.
-    entry fun update_master_minter<T>(treasury: &mut Treasury<T>, new_master_minter: address, ctx: &TxContext) {
-        treasury.assert_is_compatible();
-        treasury.roles_mut().update_master_minter(new_master_minter, ctx)
-    }
+/// Finalize owner role transfer process.
+/// - Only callable by the pending owner.
+/// - Only callable if the Treasury object is compatible with this package.
+entry fun accept_ownership<T>(treasury: &mut Treasury<T>, ctx: &TxContext) {
+    treasury.assert_is_compatible();
+    treasury.roles_mut().owner_role_mut().accept_role(ctx)
+}
 
-    /// Change the blocklister address.
-    /// - Only callable by the owner.
-    /// - Only callable if the Treasury object is compatible with this package.
-    entry fun update_blocklister<T>(treasury: &mut Treasury<T>, new_blocklister: address, ctx: &TxContext) {
-        treasury.assert_is_compatible();
-        treasury.roles_mut().update_blocklister(new_blocklister, ctx)
-    }
+/// Change the master minter address.
+/// - Only callable by the owner.
+/// - Only callable if the Treasury object is compatible with this package.
+entry fun update_master_minter<T>(
+    treasury: &mut Treasury<T>,
+    new_master_minter: address,
+    ctx: &TxContext,
+) {
+    treasury.assert_is_compatible();
+    treasury.roles_mut().update_master_minter(new_master_minter, ctx)
+}
 
-    /// Change the pauser address.
-    /// - Only callable by the owner.
-    /// - Only callable if the Treasury object is compatible with this package.
-    entry fun update_pauser<T>(treasury: &mut Treasury<T>, new_pauser: address, ctx: &TxContext) {
-        treasury.assert_is_compatible();
-        treasury.roles_mut().update_pauser(new_pauser, ctx)
-    }
+/// Change the blocklister address.
+/// - Only callable by the owner.
+/// - Only callable if the Treasury object is compatible with this package.
+entry fun update_blocklister<T>(
+    treasury: &mut Treasury<T>,
+    new_blocklister: address,
+    ctx: &TxContext,
+) {
+    treasury.assert_is_compatible();
+    treasury.roles_mut().update_blocklister(new_blocklister, ctx)
+}
 
-    /// Change the metadata updater address.
-    /// - Only callable by the owner.
-    /// - Only callable if the Treasury object is compatible with this package.
-    entry fun update_metadata_updater<T>(treasury: &mut Treasury<T>, new_metadata_updater: address, ctx: &TxContext) {
-        treasury.assert_is_compatible();
-        treasury.roles_mut().update_metadata_updater(new_metadata_updater, ctx)
-    }
+/// Change the pauser address.
+/// - Only callable by the owner.
+/// - Only callable if the Treasury object is compatible with this package.
+entry fun update_pauser<T>(treasury: &mut Treasury<T>, new_pauser: address, ctx: &TxContext) {
+    treasury.assert_is_compatible();
+    treasury.roles_mut().update_pauser(new_pauser, ctx)
+}
+
+/// Change the metadata updater address.
+/// - Only callable by the owner.
+/// - Only callable if the Treasury object is compatible with this package.
+entry fun update_metadata_updater<T>(
+    treasury: &mut Treasury<T>,
+    new_metadata_updater: address,
+    ctx: &TxContext,
+) {
+    treasury.assert_is_compatible();
+    treasury.roles_mut().update_metadata_updater(new_metadata_updater, ctx)
 }
