@@ -15,206 +15,253 @@
 // limitations under the License.
 
 #[test_only]
-module sui_extensions::two_step_role_tests {
-    use sui::{
-        event,
-        test_scenario::{Self, Scenario},
-        test_utils::{assert_eq}
-    };
-    use sui_extensions::{
-        test_utils::last_event_by_type,
-        two_step_role::{Self, TwoStepRole}
-    };
+module sui_extensions::two_step_role_tests;
 
-    public struct TWO_STEP_ROLE_TESTS has drop {}
+use sui::event;
+use sui::test_scenario::{Self, Scenario};
+use sui::test_utils::assert_eq;
+use sui_extensions::test_utils::last_event_by_type;
+use sui_extensions::two_step_role::{Self, TwoStepRole};
 
-    // Test addresses
-    const ADMIN: address = @0xA;
-    const NEW_ADMIN: address = @0xB;
-    const INVALID_ADMIN: address = @0xC;
+public struct TWO_STEP_ROLE_TESTS has drop {}
 
-    // === Helper functions ===
+// Test addresses
+const ADMIN: address = @0xA;
+const NEW_ADMIN: address = @0xB;
+const INVALID_ADMIN: address = @0xC;
 
-    fun setup(): (Scenario, TwoStepRole<TWO_STEP_ROLE_TESTS>) {
-        let scenario = test_scenario::begin(ADMIN);
-        let role = two_step_role::new(TWO_STEP_ROLE_TESTS {}, ADMIN);
-        (scenario, role)
-    }
+// === Helper functions ===
 
-    fun test_begin_role_transfer(new_address: address, role: &mut TwoStepRole<TWO_STEP_ROLE_TESTS>, scenario: &mut Scenario) {
-        let active_address = role.active_address();
-        role.begin_role_transfer(new_address, scenario.ctx());
+fun setup(): (Scenario, TwoStepRole<TWO_STEP_ROLE_TESTS>) {
+    let scenario = test_scenario::begin(ADMIN);
+    let role = two_step_role::new(TWO_STEP_ROLE_TESTS {}, ADMIN);
+    (scenario, role)
+}
 
-        assert_eq(role.active_address(), active_address);
-        assert_eq(role.pending_address(), option::some(new_address));
+fun test_begin_role_transfer(
+    new_address: address,
+    role: &mut TwoStepRole<TWO_STEP_ROLE_TESTS>,
+    scenario: &mut Scenario,
+) {
+    let active_address = role.active_address();
+    role.begin_role_transfer(new_address, scenario.ctx());
 
-        let expected_event = two_step_role::create_role_transfer_started_event<TWO_STEP_ROLE_TESTS>(active_address, new_address);
-        assert_eq(event::num_events(), 1);
-        assert_eq(last_event_by_type(), expected_event);
-    }
+    assert_eq(role.active_address(), active_address);
+    assert_eq(role.pending_address(), option::some(new_address));
 
-    fun test_accept_role(role: &mut TwoStepRole<TWO_STEP_ROLE_TESTS>, scenario: &mut Scenario) {
-        let old_active_address = role.active_address();
-        let new_active_address = role.pending_address();
-        role.accept_role(scenario.ctx());
+    let expected_event = two_step_role::create_role_transfer_started_event<TWO_STEP_ROLE_TESTS>(
+        active_address,
+        new_address,
+    );
+    assert_eq(event::num_events(), 1);
+    assert_eq(last_event_by_type(), expected_event);
+}
 
-        assert_eq(role.active_address(), *new_active_address.borrow());
-        assert_eq(role.pending_address().is_none(), true);
+fun test_accept_role(role: &mut TwoStepRole<TWO_STEP_ROLE_TESTS>, scenario: &mut Scenario) {
+    let old_active_address = role.active_address();
+    let new_active_address = role.pending_address();
+    role.accept_role(scenario.ctx());
 
-        let expected_event = two_step_role::create_role_transferred_event<TWO_STEP_ROLE_TESTS>(
-            old_active_address, *new_active_address.borrow()
-        );
-        assert_eq(event::num_events(), 1);
-        assert_eq(last_event_by_type(), expected_event);
-    }
+    assert_eq(role.active_address(), *new_active_address.borrow());
+    assert_eq(role.pending_address().is_none(), true);
 
-    // === Tests ===
+    let expected_event = two_step_role::create_role_transferred_event<TWO_STEP_ROLE_TESTS>(
+        old_active_address,
+        *new_active_address.borrow(),
+    );
+    assert_eq(event::num_events(), 1);
+    assert_eq(last_event_by_type(), expected_event);
+}
 
-    // new tests
+// === Tests ===
 
-    #[test]
-    fun new__should_succeed() {
-        let (scenario, role) = setup();
-        assert_eq(role.active_address(), ADMIN);
-        assert_eq(role.pending_address(), option::none());
+// new tests
 
-        role.destroy();
-        scenario.end();
-    }
+#[test]
+fun new__should_succeed() {
+    let (scenario, role) = setup();
+    assert_eq(role.active_address(), ADMIN);
+    assert_eq(role.pending_address(), option::none());
 
-    // begin_role_transfer tests
+    role.destroy();
+    scenario.end();
+}
 
-    #[test]
-    fun begin_role_transfer__should_succeed() {
-        let (mut scenario, mut role) = setup();
-        
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
+// begin_role_transfer tests
 
-        role.destroy();
-        scenario.end();
-    }
+#[test]
+fun begin_role_transfer__should_succeed() {
+    let (mut scenario, mut role) = setup();
 
-    #[test]
-    fun begin_role_transfer__should_succeed_if_pending_address_is_set() {
-        let (mut scenario, mut role) = setup();
-        
-        // Transfer to INVALID_ADMIN
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(INVALID_ADMIN, &mut role,  &mut scenario);
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
 
-         // Transfer to NEW_ADMIN before original transfer is accepted
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
+    role.destroy();
+    scenario.end();
+}
 
-        role.destroy();
-        scenario.end();
-    }
+#[test]
+fun begin_role_transfer__should_succeed_if_pending_address_is_set() {
+    let (mut scenario, mut role) = setup();
 
-    #[test]
-    fun begin_role_transfer__should_succeed_when_set_to_current_active_address() {
-        let (mut scenario, mut role) = setup();
-        
-        // Transfer to current active address
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(ADMIN, &mut role, &mut scenario);
+    // Transfer to INVALID_ADMIN
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(INVALID_ADMIN, &mut role, &mut scenario);
 
-        role.destroy();
-        scenario.end();
-    }
+    // Transfer to NEW_ADMIN before original transfer is accepted
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
 
-    #[test]
-    #[expected_failure(abort_code = two_step_role::ESenderNotActiveRole)]
-    fun begin_role_transfer__should_fail_if_sender_is_not_active_address() {
-        let (mut scenario, mut role) = setup();
-        
-        scenario.next_tx(INVALID_ADMIN);
-        role.begin_role_transfer(NEW_ADMIN, scenario.ctx());
-        
-        role.destroy();
-        scenario.end();
-    }
+    role.destroy();
+    scenario.end();
+}
 
-    // accept_role tests
+#[test]
+fun begin_role_transfer__should_succeed_when_set_to_current_active_address() {
+    let (mut scenario, mut role) = setup();
 
-    #[test]
-    fun accept_role__should_succeed() {
-        let (mut scenario, mut role) = setup();
+    // Transfer to current active address
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(ADMIN, &mut role, &mut scenario);
 
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
+    role.destroy();
+    scenario.end();
+}
 
-        scenario.next_tx(NEW_ADMIN);
-        test_accept_role(&mut role, &mut scenario);
-        
-        role.destroy();
-        scenario.end();
-    }
+#[test]
+#[expected_failure(abort_code = two_step_role::ESenderNotActiveRole)]
+fun begin_role_transfer__should_fail_if_sender_is_not_active_address() {
+    let (mut scenario, mut role) = setup();
 
-    #[test]
-    fun accept_role__should_succeed_if_pending_address_is_active_address() {
-        let (mut scenario, mut role) = setup();
+    scenario.next_tx(INVALID_ADMIN);
+    role.begin_role_transfer(NEW_ADMIN, scenario.ctx());
 
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(ADMIN, &mut role, &mut scenario);
-        
-        scenario.next_tx(ADMIN);
-        test_accept_role(&mut role, &mut scenario);
+    role.destroy();
+    scenario.end();
+}
 
-        role.destroy();
-        scenario.end();
-    }
+// accept_role tests
 
-    #[test]
-    #[expected_failure(abort_code = two_step_role::EPendingAddressNotSet)]
-    fun accept_role__should_fail_if_pending_address_not_set() {
-        let (mut scenario, mut role) = setup();
+#[test]
+fun accept_role__should_succeed() {
+    let (mut scenario, mut role) = setup();
 
-        scenario.next_tx(NEW_ADMIN);
-        test_accept_role(&mut role, &mut scenario);
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
 
-        role.destroy();
-        scenario.end();
-    }
+    scenario.next_tx(NEW_ADMIN);
+    test_accept_role(&mut role, &mut scenario);
 
-    #[test]
-    #[expected_failure(abort_code = two_step_role::ESenderNotPendingAddress)]
-    fun accept_role__should_fail_if_sender_is_not_pending_address() {
-        let (mut scenario, mut role) = setup();
+    role.destroy();
+    scenario.end();
+}
 
-        scenario.next_tx(ADMIN);
-        test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
+#[test]
+fun accept_role__should_succeed_if_pending_address_is_active_address() {
+    let (mut scenario, mut role) = setup();
 
-        scenario.next_tx(INVALID_ADMIN);
-        test_accept_role(&mut role, &mut scenario);
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(ADMIN, &mut role, &mut scenario);
 
-        role.destroy();
-        scenario.end();
-    }
+    scenario.next_tx(ADMIN);
+    test_accept_role(&mut role, &mut scenario);
 
-    // assert_sender_is_active_role tests
+    role.destroy();
+    scenario.end();
+}
 
-    #[test]
-    fun assert_sender_is_active_role__should_succeed() {
-        let (mut scenario, role) = setup();
+#[test]
+#[expected_failure(abort_code = two_step_role::EPendingAddressNotSet)]
+fun accept_role__should_fail_if_pending_address_not_set() {
+    let (mut scenario, mut role) = setup();
 
-        scenario.next_tx(ADMIN);
-        role.assert_sender_is_active_role(scenario.ctx());
+    scenario.next_tx(NEW_ADMIN);
+    test_accept_role(&mut role, &mut scenario);
 
-        role.destroy();
-        scenario.end();
-    }
+    role.destroy();
+    scenario.end();
+}
 
-    #[test]
-    #[expected_failure]
-    fun assert_sender_is_active_role__should_fail_if_sender_not_active_address() {
-        let (mut scenario, role) = setup();
+#[test]
+#[expected_failure(abort_code = two_step_role::ESenderNotPendingAddress)]
+fun accept_role__should_fail_if_sender_is_not_pending_address() {
+    let (mut scenario, mut role) = setup();
 
-        scenario.next_tx(INVALID_ADMIN);
-        role.assert_sender_is_active_role(scenario.ctx());
-        
-        role.destroy();
-        scenario.end();
-    }
+    scenario.next_tx(ADMIN);
+    test_begin_role_transfer(NEW_ADMIN, &mut role, &mut scenario);
 
+    scenario.next_tx(INVALID_ADMIN);
+    test_accept_role(&mut role, &mut scenario);
+
+    role.destroy();
+    scenario.end();
+}
+
+// assert_sender_is_active_role tests
+
+#[test]
+fun assert_sender_is_active_role__should_succeed() {
+    let (mut scenario, role) = setup();
+
+    scenario.next_tx(ADMIN);
+    role.assert_sender_is_active_role(scenario.ctx());
+
+    role.destroy();
+    scenario.end();
+}
+
+#[test]
+#[expected_failure]
+fun assert_sender_is_active_role__should_fail_if_sender_not_active_address() {
+    let (mut scenario, role) = setup();
+
+    scenario.next_tx(INVALID_ADMIN);
+    role.assert_sender_is_active_role(scenario.ctx());
+
+    role.destroy();
+    scenario.end();
+}
+
+// Additional tests for better coverage
+
+#[test]
+fun destroy__should_succeed() {
+    let (scenario, role) = setup();
+
+    // Test that destroy works properly
+    role.destroy();
+    scenario.end();
+}
+
+#[test]
+fun active_address__should_return_correct_address() {
+    let (scenario, role) = setup();
+
+    assert_eq(role.active_address(), ADMIN);
+
+    role.destroy();
+    scenario.end();
+}
+
+#[test]
+fun pending_address__should_return_none_initially() {
+    let (scenario, role) = setup();
+
+    assert_eq(role.pending_address(), option::none());
+
+    role.destroy();
+    scenario.end();
+}
+
+#[test]
+fun pending_address__should_return_some_after_transfer_started() {
+    let (mut scenario, mut role) = setup();
+
+    scenario.next_tx(ADMIN);
+    role.begin_role_transfer(NEW_ADMIN, scenario.ctx());
+
+    assert_eq(role.pending_address(), option::some(NEW_ADMIN));
+
+    role.destroy();
+    scenario.end();
 }

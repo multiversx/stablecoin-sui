@@ -14,25 +14,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module stablecoin::stablecoin {
-    use sui_extensions::upgrade_service;
+module stablecoin::stablecoin;
 
-    public struct STABLECOIN has drop {}
+use sui_extensions::upgrade_service;
 
-    #[allow(lint(share_owned))]
-    /// Initializes a shared UpgradeService<STABLECOIN> and sets the
-    /// transaction's sender as the initial admin.
-    fun init(witness: STABLECOIN, ctx: &mut TxContext) {
-        let (upgrade_service, _) = upgrade_service::new(
-            witness,
-            ctx.sender() /* admin */,
-            ctx
-        );
-        transfer::public_share_object(upgrade_service);
-    }
+public struct STABLECOIN has drop {}
 
-    #[test_only]
-    public(package) fun init_for_testing(ctx: &mut TxContext) {
-        init(STABLECOIN {}, ctx)
-    }
+#[allow(lint(share_owned))]
+/// Initializes a shared UpgradeService<STABLECOIN> and sets the
+/// transaction's sender as the initial admin.
+fun init(witness: STABLECOIN, ctx: &mut TxContext) {
+    let (upgrade_service, _) = upgrade_service::new(
+        witness,
+        ctx.sender(),
+        /* admin */
+        ctx,
+    );
+    transfer::public_share_object(upgrade_service);
+}
+
+#[test_only]
+public(package) fun init_for_testing(ctx: &mut TxContext) {
+    init(STABLECOIN {}, ctx)
 }
