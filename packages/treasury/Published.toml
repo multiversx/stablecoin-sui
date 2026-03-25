@@ -1,0 +1,21 @@
+# treasury was bundled with sui_extensions and xmn via --with-unpublished-dependencies.
+# The original-id here is intentionally distinct from sui_extensions' original-id so that
+# the Move toolchain's cycle detector (which fires when two packages in the same dep path
+# share the same original-id) does not trigger.
+# The published-at addresses are the correct on-chain bundle addresses.
+# In the compiled bytecode, treasury and sui_extensions share one linkage entry (same
+# runtime package ID), so the VM uses sui_extensions' real original-id for validation.
+
+[published.mainnet]
+chain-id = "35834a8a"
+published-at = "0xde2b84f57e926ee444db749733a37ddf4677ebacacf96bc100bf095467b8dee2"
+original-id = "0x7777777777777777777777777777777777777777777777777777777777777777"
+version = 1
+
+[published.testnet]
+chain-id = "4c78adac"
+published-at = "0x28182c116f8f9a015b348f61e6330bdccdae7c192b9ba7293d4e296e912ed070"
+original-id = "0x28182c116f8f9a015b348f61e6330bdccdae7c192b9ba7293d4e296e912ed070"
+version = 1
+toolchain-version = "1.66.2"
+build-config = { flavor = "sui", edition = "2024" }
