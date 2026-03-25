@@ -17,7 +17,7 @@
 #!/usr/bin/env bash
 
 # Load the full JSON into a variable
-JSON_FILE="mainnet_publish.json"
+JSON_FILE="testnet_publish.json"
 
 # 1) Your package ID is the one published
 PACKAGE_ID=$(jq -r '
@@ -89,8 +89,8 @@ function configure_minter() {
 }
 
 function mint() {
-  MINT_CAP_ID=0xb3638821876f77fcc966ed3f0fdc8e5087ac011eff9891934856cc2ff6ac645c
-  MINT_TO=0x46b773eb9432b446875cb34e8d71f67e8cd49372f06d7730417206cb2492329b
+  MINT_CAP_ID=0xa70fbb383a9bc4555099e929f8eb4da50197db9b5af6a3ebb1de87dfab7bac70
+  MINT_TO=0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e
   sui client ptb \
     --move-call "$PACKAGE_ID::treasury::mint" \
       "<$PACKAGE_ID::xmn::XMN>" \
@@ -124,7 +124,7 @@ function update_metadata() {
 }
 
 function transfer_ownership() {
-  NEW_OWNER=0x2bc16adcc0e1c7cab348a1cda8797c4dbb510421f99c7cc03928a74f29afe68b
+  NEW_OWNER=0xeb298a01aef58dce189dbb7d5aa53ea934a14067568ade05b152ab5a8be7df4e
   sui client ptb \
     --move-call "$PACKAGE_ID::entry::transfer_ownership" \
       "<$PACKAGE_ID::xmn::XMN>" \
